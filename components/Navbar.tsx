@@ -64,7 +64,7 @@ export default function Navbar() {
               Sign Out
             </button>
             <Image
-              src={session?.user?.image}
+              src={session?.user?.image || '/assets/images/logo.svg'}
               alt="user profile image"
               className="rounded-full"
               width={37}

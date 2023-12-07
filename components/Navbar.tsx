@@ -3,20 +3,43 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useState, useEffect } from "react";
-import { signIn, signOut, useSession, getProviders } from "next-auth/react";
+import {
+  signIn,
+  signOut,
+  useSession,
+  getProviders,
+  LiteralUnion,
+  ClientSafeProvider,
+} from "next-auth/react";
 import "@styles/global.css";
+import { BuiltInProviderType } from "next-auth/providers/index";
 
 export default function Navbar() {
   const isUserLoggedin = true;
-  const [providers, setProviders] = useState(null);
+  const [providers, setProviders] = useState<Record<
+    LiteralUnion<BuiltInProviderType, string>,
+    ClientSafeProvider
+  > | null>(null);
   const [toggleDropdown, setToggleDropdown] = useState<boolean>(false);
 
+  const { data: session } = useSession();
+
   useEffect(() => {
-    const setProvider = async () => {
-      const response = await getProviders();
-      setProviders(response);
+    const setupProviders = async () => {
+      try {
+        const response = await getProviders();
+        console.log(response);
+        setProviders(response);
+      } catch (error) {
+        console.error("Error fetching providers:", error);
+      }
     };
+
+    setupProviders();
   }, []);
+
+  console.log(session);
+  console.log(providers);
 
   return (
     <nav className="flex-between w-full mb-16 pt-3">
@@ -32,7 +55,7 @@ export default function Navbar() {
       </Link>
 
       <div className="sm:flex ">
-        {isUserLoggedin ? (
+        {session?.user ? (
           <div className="flex gap-3 md:gap-5">
             <Link href="/create-prompt" className="black_btn">
               Create post
@@ -41,7 +64,7 @@ export default function Navbar() {
               Sign Out
             </button>
             <Image
-              src="/assets/images/logo.svg"
+              src={session?.user?.image}
               alt="user profile image"
               className="rounded-full"
               width={37}
@@ -77,8 +100,13 @@ export default function Navbar() {
                 <button
                   type="button"
                   key={provider.name}
-                  onClick={() => signIn(provider.id)}
-                ></button>
+                  onClick={() => {
+                    signIn(provider.id);
+                  }}
+                  className="black_btn"
+                >
+                  Sign in
+                </button>
               ))}
           </>
         )}

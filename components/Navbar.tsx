@@ -9,7 +9,7 @@ import "@styles/global.css";
 export default function Navbar() {
   const isUserLoggedin = true;
   const [providers, setProviders] = useState(null);
-  const [toggleDropdown, setToggleDropdown] = useState(false);
+  const [toggleDropdown, setToggleDropdown] = useState<boolean>(false);
 
   useEffect(() => {
     const setProvider = async () => {
